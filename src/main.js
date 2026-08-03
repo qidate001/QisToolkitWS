@@ -10,10 +10,9 @@ import {
 (function() {
     'use strict';
 
-    // 1. 初始化面板
     const panel = createPanel();
 
-    // 2. 监听 Ins 键
+    // 监听 Ins 键
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Insert') {
             e.preventDefault();
@@ -21,12 +20,12 @@ import {
         }
     });
 
-    // 3. 自动执行功能（根据存储恢复状态）
-    initEditMode();          // 恢复编辑模式状态（如果之前开启，重新激活）
-    initSteamAdultContent(); // 恢复 Steam 设置（如果之前开启）
+    // 自动执行功能（根据存储恢复状态）
+    initEditMode();
+    initSteamAdultContent(); // 内部已判断页面，只在 Steam 偏好页执行
 
     // =============================================
-    // 4. 向面板添加功能按钮（编辑 + Steam）
+    // 向面板添加功能按钮（根据当前页面动态决定）
     // =============================================
     const addFeatureButtons = () => {
         const body = document.getElementById('qis-panel-body');
@@ -42,7 +41,7 @@ import {
             gap: 12px;
         `;
 
-        // ---------- 按钮1：编辑模式 ----------
+        // ---------- 按钮1：编辑模式（全局通用） ----------
         const editBtn = document.createElement('button');
         editBtn.id = 'qis-btn-edit';
         editBtn.style.cssText = `
@@ -92,63 +91,68 @@ import {
         });
 
         updateEditButtonStyle();
+        container.appendChild(editBtn);
 
-        // ---------- 按钮2：Steam 成人内容 ----------
-        const steamBtn = document.createElement('button');
-        steamBtn.id = 'qis-btn-steam';
-        steamBtn.style.cssText = `
-            padding: 14px 20px;
-            background: #2a2a3e;
-            border: 1px solid #45475a;
-            border-radius: 10px;
-            color: #cdd6f4;
-            font-size: 15px;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        `;
+        // ---------- 按钮2：Steam 成人内容（仅 Steam 偏好页显示） ----------
+        const isSteamPage = window.location.href.includes('store.steampowered.com/account/preferences/');
+        if (isSteamPage) {
+            const steamBtn = document.createElement('button');
+            steamBtn.id = 'qis-btn-steam';
+            steamBtn.style.cssText = `
+                padding: 14px 20px;
+                background: #2a2a3e;
+                border: 1px solid #45475a;
+                border-radius: 10px;
+                color: #cdd6f4;
+                font-size: 15px;
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                cursor: pointer;
+                transition: all 0.25s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                font-weight: 500;
+                letter-spacing: 0.3px;
+            `;
 
-        const updateSteamButtonStyle = () => {
-            const isActive = checkSteamAdultContentStatus();
-            if (isActive) {
-                steamBtn.textContent = '🔞 Steam 成人内容：已显示';
-                steamBtn.style.background = '#4a2a2a';
-                steamBtn.style.borderColor = '#ff6b6b';
-                steamBtn.style.color = '#ff8a8a';
-            } else {
-                steamBtn.textContent = '🔞 Steam 成人内容：已隐藏';
-                steamBtn.style.background = '#2a2a3e';
-                steamBtn.style.borderColor = '#45475a';
-                steamBtn.style.color = '#cdd6f4';
-            }
-        };
+            const updateSteamButtonStyle = () => {
+                const isActive = checkSteamAdultContentStatus();
+                if (isActive) {
+                    steamBtn.textContent = '🔞 成人内容：已显示';
+                    steamBtn.style.background = '#4a2a2a';
+                    steamBtn.style.borderColor = '#ff6b6b';
+                    steamBtn.style.color = '#ff8a8a';
+                } else {
+                    steamBtn.textContent = '🔞 成人内容：已隐藏';
+                    steamBtn.style.background = '#2a2a3e';
+                    steamBtn.style.borderColor = '#45475a';
+                    steamBtn.style.color = '#cdd6f4';
+                }
+            };
 
-        steamBtn.addEventListener('click', () => {
-            const currentStatus = checkSteamAdultContentStatus();
-            const newStatus = !currentStatus;
-            const success = toggleSteamAdultContent(newStatus);
-            if (success) {
+            steamBtn.addEventListener('click', () => {
+                const currentStatus = checkSteamAdultContentStatus();
+                const newStatus = !currentStatus;
+                const success = toggleSteamAdultContent(newStatus);
+                if (success) {
+                    updateSteamButtonStyle();
+                    console.log(`Steam 成人内容切换至: ${newStatus ? '显示' : '隐藏'}`);
+                } else {
+                    alert('操作失败，请确保你在 Steam 偏好设置页面');
+                }
+            });
+
+            steamBtn.addEventListener('mouseenter', () => {
+                steamBtn.style.background = '#313244';
+            });
+            steamBtn.addEventListener('mouseleave', () => {
                 updateSteamButtonStyle();
-                console.log(`Steam 成人内容切换至: ${newStatus ? '显示' : '隐藏'}`);
-            } else {
-                alert('操作失败，请确保你在 Steam 偏好设置页面');
-            }
-        });
+            });
 
-        steamBtn.addEventListener('mouseenter', () => {
-            steamBtn.style.background = '#313244';
-        });
-        steamBtn.addEventListener('mouseleave', () => {
             updateSteamButtonStyle();
-        });
-
-        updateSteamButtonStyle();
+            container.appendChild(steamBtn);
+        }
 
         // ---------- 占位（未来更多功能） ----------
         const futureBtn = document.createElement('button');
@@ -164,10 +168,8 @@ import {
             cursor: not-allowed;
             opacity: 0.6;
         `;
-
-        container.appendChild(editBtn);
-        container.appendChild(steamBtn);
         container.appendChild(futureBtn);
+
         body.appendChild(container);
     };
 
