@@ -2,7 +2,7 @@
 
 > **Qis Toolkit Web Script** —— 一个面向网页的高效工具箱，通过 `Ins` 键快速唤起黑色主题面板，集成多种实用工具。
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/qidate001/QisToolkitWS)](https://github.com/qidate001/QisToolkitWS/stargazers)
 [![TamperMonkey](https://img.shields.io/badge/TamperMonkey-支持-green)](https://www.tampermonkey.net/)
 
@@ -13,7 +13,6 @@
 - 🚀 **一键唤起**：按 `Ins` 键打开优雅的黑色主题面板，按 `Esc` 或点击遮罩快速关闭。
 - ✏️ **网页编辑模式**：一键开启/关闭页面内容的直接编辑，支持修改文字、删除元素（按 `Delete` 键）。
 - 🔞 **Steam 成人内容修正**（仅 Steam 偏好设置页面显示）：恢复 Steam 默认隐藏的两个成人内容筛选选项，让你的偏好设置完整可见。
-- 🎨 **现代 UI**：毛玻璃效果、平滑动画、可拖拽移动的面板，视觉风格统一。
 - 💾 **状态持久化**：使用 `GM_setValue` / `GM_getValue` 保存功能开关状态，刷新页面自动恢复。
 - 🧩 **模块化架构**：基于 ES Module 拆分功能，易于扩展和维护。
 
@@ -49,3 +48,4 @@ npm run dev
 
 # 构建最终脚本（输出到 dist/）
 npm run build
+```
