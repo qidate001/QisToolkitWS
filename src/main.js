@@ -1,14 +1,18 @@
 // src/main.js
 import { createPanel } from './ui/panel';
-import { toggleEditMode, getEditModeStatus, initEditMode } from './features/editMode';
+import { 
+  toggleSteamAdultContent, 
+  checkSteamAdultContentStatus, 
+  getSteamAdultContentSetting,
+  initSteamAdultContent 
+} from './features/steamAdultContent';
 
 (function() {
     'use strict';
 
-    // 1. 初始化面板
     const panel = createPanel();
 
-    // 2. 监听 Ins 键
+    // 监听 Ins 键
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Insert') {
             e.preventDefault();
@@ -16,18 +20,16 @@ import { toggleEditMode, getEditModeStatus, initEditMode } from './features/edit
         }
     });
 
-    // 3. 初始化编辑模式状态（同步页面的 designMode）
-    initEditMode();
+    // ===== 自动执行 Steam 功能 =====
+    initSteamAdultContent();
 
-    // 4. 往面板内容区添加功能按钮
+    // ===== 向面板添加功能按钮 =====
     const addFeatureButtons = () => {
         const body = document.getElementById('qis-panel-body');
         if (!body) return;
 
-        // 清空占位内容
         body.innerHTML = '';
 
-        // 创建功能按钮容器
         const container = document.createElement('div');
         container.style.cssText = `
             padding: 24px 20px;
@@ -36,11 +38,10 @@ import { toggleEditMode, getEditModeStatus, initEditMode } from './features/edit
             gap: 12px;
         `;
 
-        // ---- 编辑模式按钮 ----
-        const editBtn = document.createElement('button');
-        editBtn.id = 'qis-btn-edit';
-        editBtn.textContent = '✏️ 启用网页编辑';
-        editBtn.style.cssText = `
+        // ---- Steam 成人内容开关 ----
+        const steamBtn = document.createElement('button');
+        steamBtn.id = 'qis-btn-steam';
+        steamBtn.style.cssText = `
             padding: 14px 20px;
             background: #2a2a3e;
             border: 1px solid #45475a;
@@ -55,44 +56,47 @@ import { toggleEditMode, getEditModeStatus, initEditMode } from './features/edit
             justify-content: center;
             gap: 8px;
             font-weight: 500;
-            letter-spacing: 0.3px;
         `;
-        editBtn.addEventListener('mouseenter', () => {
-            editBtn.style.background = '#313244';
-        });
-        editBtn.addEventListener('mouseleave', () => {
-            // 根据编辑状态恢复背景色
-            updateEditButtonStyle();
-        });
 
-        // 更新按钮样式（根据当前状态）
-        const updateEditButtonStyle = () => {
-            const isActive = getEditModeStatus();
+        const updateSteamButtonStyle = () => {
+            const isActive = checkSteamAdultContentStatus();
             if (isActive) {
-                editBtn.textContent = '🔴 关闭网页编辑';
-                editBtn.style.background = '#4a2a2a';
-                editBtn.style.borderColor = '#ff6b6b';
-                editBtn.style.color = '#ff8a8a';
+                steamBtn.textContent = '🔞 Steam 成人内容：已显示';
+                steamBtn.style.background = '#4a2a2a';
+                steamBtn.style.borderColor = '#ff6b6b';
+                steamBtn.style.color = '#ff8a8a';
             } else {
-                editBtn.textContent = '✏️ 启用网页编辑';
-                editBtn.style.background = '#2a2a3e';
-                editBtn.style.borderColor = '#45475a';
-                editBtn.style.color = '#cdd6f4';
+                steamBtn.textContent = '🔞 Steam 成人内容：已隐藏';
+                steamBtn.style.background = '#2a2a3e';
+                steamBtn.style.borderColor = '#45475a';
+                steamBtn.style.color = '#cdd6f4';
             }
         };
 
-        // 点击事件：切换编辑模式
-        editBtn.addEventListener('click', () => {
-            const newStatus = toggleEditMode();
-            updateEditButtonStyle();
-            // 提示用户当前状态（可选）
-            console.log(`📝 编辑模式: ${newStatus ? '已开启' : '已关闭'}`);
+        steamBtn.addEventListener('click', () => {
+            const currentStatus = checkSteamAdultContentStatus();
+            // 切换状态（反转）
+            const newStatus = !currentStatus;
+            const success = toggleSteamAdultContent(newStatus);
+            if (success) {
+                updateSteamButtonStyle();
+                console.log(`Steam 成人内容切换至: ${newStatus ? '显示' : '隐藏'}`);
+            } else {
+                alert('操作失败，请确保你在 Steam 偏好设置页面');
+            }
+        });
+
+        steamBtn.addEventListener('mouseenter', () => {
+            steamBtn.style.background = '#313244';
+        });
+        steamBtn.addEventListener('mouseleave', () => {
+            updateSteamButtonStyle(); // 恢复正确样式
         });
 
         // 初始化按钮样式
-        updateEditButtonStyle();
+        updateSteamButtonStyle();
 
-        // ---- 其他功能按钮占位（后续可继续添加） ----
+        // ---- 其他功能占位 ----
         const futureBtn = document.createElement('button');
         futureBtn.textContent = '🧩 更多功能开发中...';
         futureBtn.style.cssText = `
@@ -107,13 +111,12 @@ import { toggleEditMode, getEditModeStatus, initEditMode } from './features/edit
             opacity: 0.6;
         `;
 
-        container.appendChild(editBtn);
+        container.appendChild(steamBtn);
         container.appendChild(futureBtn);
         body.appendChild(container);
     };
 
-    // 由于面板内容是动态创建的，需要等面板 DOM 出现后才能添加按钮
-    // 用一个 MutationObserver 或者直接延迟执行
+    // 等待面板 DOM 创建
     const waitForPanel = () => {
         const checkInterval = setInterval(() => {
             const body = document.getElementById('qis-panel-body');
@@ -124,7 +127,6 @@ import { toggleEditMode, getEditModeStatus, initEditMode } from './features/edit
         }, 100);
     };
 
-    // 如果面板还未创建，等待它出现；如果已存在则直接添加
     const existingBody = document.getElementById('qis-panel-body');
     if (existingBody) {
         addFeatureButtons();
