@@ -26,21 +26,21 @@ const updateStatusIndicator = () => {
     indicator = document.createElement('div');
     indicator.id = 'qis-edit-indicator';
     indicator.style.cssText = `
-      position: fixed;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999998;
-      padding: 6px 18px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
-      pointer-events: none;
-      user-select: none;
+        position: fixed;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 999998;
+        padding: 6px 18px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+        pointer-events: none;
+        user-select: none;
     `;
     document.body.appendChild(indicator);
   }
