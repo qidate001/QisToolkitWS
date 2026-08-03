@@ -1,10 +1,20 @@
 // src/main.js
-import { showHello } from './utils/helper';
+import { createPanel } from './ui/panel';
 
-// 油猴脚本的入口
 (function() {
     'use strict';
-    
-    console.log('QisToolkitWS 已启动！');
-    showHello();
+
+    // 1. 初始化面板
+    const panel = createPanel();
+
+    // 2. 监听键盘事件
+    document.addEventListener('keydown', (e) => {
+        // 按下 Insert 键（注意：部分键盘标记为 'Insert'，代码里是 'Insert'）
+        if (e.key === 'Insert') {
+            e.preventDefault();  // 防止触发浏览器自带的覆盖模式切换
+            panel.toggle();
+        }
+    });
+
+    console.log('✅ QisToolkitWS 已加载，按 Ins 键打开面板');
 })();
